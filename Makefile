@@ -15,10 +15,13 @@ INITRAMFS_DIR := $(OUTPUT_DIR)/initramfs_install
 LINUX_INITRAMFS_CONFIG := $(CONFIG_FILES_DIR)/initramfs_config_file
 
 LINUX_SRC_DIR := $(SRC_DIR)/linux-stable
+MICROINIT_SRC_DIR := $(SRC_DIR)/microinit
 
 QUIET := @
 
-linux:
+default: linux microinit
+
+linux: microinit
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) x86_64_defconfig
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) --jobs=4 modules
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) --jobs=4 modules_install INSTALL_MOD_PATH=$(INITRAMFS_DIR)
@@ -28,4 +31,7 @@ linux:
 	$(QUIET)sed -i s^CONFIG_INITRAMFS_ROOT_UID=^CONFIG_INITRAMFS_ROOT_UID=`id -u`^g $(LINUX_SRC_DIR)/.config
 	$(QUIET)sed -i s^CONFIG_INITRAMFS_ROOT_GID=^CONFIG_INITRAMFS_ROOT_GID=`id -u`^g $(LINUX_SRC_DIR)/.config
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) --jobs=4
+
+microinit:
+	$(QUIET) cd $(MICROINIT_SRC_DIR) && $(MAKE) --jobs=4 DESTDIR=$(INITRAMFS_DIR)/
 
