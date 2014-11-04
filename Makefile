@@ -16,12 +16,13 @@ LINUX_INITRAMFS_CONFIG := $(CONFIG_FILES_DIR)/initramfs_config_file
 
 LINUX_SRC_DIR := $(SRC_DIR)/linux-stable
 MICROINIT_SRC_DIR := $(SRC_DIR)/microinit
+TOYBOX_SRC_DIR := $(SRC_DIR)/toybox
 
 QUIET := @
 
-default: linux microinit
+default: linux microinit toybox
 
-linux: microinit
+linux: microinit toybox
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) x86_64_defconfig
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) --jobs=4 modules
 	$(QUIET)cd $(LINUX_SRC_DIR) && $(MAKE) --jobs=4 modules_install INSTALL_MOD_PATH=$(INITRAMFS_DIR)
@@ -35,3 +36,8 @@ linux: microinit
 microinit:
 	$(QUIET) cd $(MICROINIT_SRC_DIR) && $(MAKE) --jobs=4 DESTDIR=$(INITRAMFS_DIR)/
 
+toybox:
+	$(QUIET)cd $(TOYBOX_SRC_DIR) && $(MAKE) defconfig
+	$(QUIET)sed -i "s^# CONFIG_SH is not set^CONFIG_SH=y^" $(TOYBOX_SRC_DIR)/.config
+	$(QUIET)cd $(TOYBOX_SRC_DIR) && $(MAKE) CFLAGS="--static" toybox --jobs=4
+	$(QUIET)cd $(TOYBOX_SRC_DIR) && $(MAKE) install PREFIX=$(INITRAMFS_DIR)
