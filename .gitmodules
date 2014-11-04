@@ -4,3 +4,6 @@
 [submodule "src/microinit"]
 	path = src/microinit
 	url = https://github.com/rob-ward/microinit.git
+[submodule "src/toybox"]
+	path = src/toybox
+	url = https://github.com/gfto/toybox.git
